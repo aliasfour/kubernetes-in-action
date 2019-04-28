@@ -6,17 +6,29 @@ spec:
   containers:
   - image: nginx:alpine
     name: web-server
+    labels:
+      app: git-sync	
     volumeMounts:
-    - name: html
+    - name: gitsync
       mountPath: /usr/share/nginx/html
       readOnly: true
     ports:
     - containerPort: 80
       protocol: TCP
+  - image: openweb/git-sync
+    name: git-sync
+    volumeMounts:
+    - name: gitsync
+      mountPath: /tmp/git
+    env:
+    - name: GIT_SYNC_REPO
+      value: "https://github.com/aliasfour/kubia-website-example.git"
+    - name: GIT_SYNC_DEST
+      value: "/tmp/git"
+    - name: GIT_SYNC_BRANCH
+      value: "master"
+    - name: GIT_SYNC_WAIT
+      value: "10"
   volumes:
-  - name: html
-    gitRepo:
-      repository: https://github.com/luksa/kubia-website-example.git
-      revision: master
-      directory: .
-
+  - name: gitsync
+    emptyDir: {} 
